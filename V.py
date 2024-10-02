@@ -63,6 +63,16 @@ for i in range(90):
 
     # Ajouter les données du capteur au DataFrame final
     final_df = pd.concat([final_df, temp_df], ignore_index=True)
+    
+    final_df = final_df[
+    ~final_df['MxB'].isin([f'M{i}B' for i in list(range(1, 9)) + list(range(38, 46))]) &  # Retirer M1B-M8B, M38B-M45B
+    ~final_df['MxB'].isin([f'F{i}B' for i in list(range(1, 9)) + list(range(38, 46))])    # Retirer F1B-F8B, F38B-F45B
+]
+# Décaler les positions X des capteurs FxB de 800 unités
+final_df.loc[final_df['MxB'].str.startswith('F'), 'X'] += -800
+
+# Afficher le DataFrame mis à jour
+print(final_df)
 
 
 #####Graph####
