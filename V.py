@@ -4,6 +4,7 @@
 
 Ceci est un script temporaire.
 """
+test
 
 import pandas as pd
 import matplotlib.pyplot as plt 
