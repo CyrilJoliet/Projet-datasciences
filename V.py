@@ -9,6 +9,9 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import numpy as np
 
+
+
+
 # Lire le fichier CSV avec pandas
 df = pd.read_csv('C:/Users/cyril/OneDrive/Documents/cours/M2/DATASCIENCES/AMDG - Sequence STR1-S-2024-06-25-14H21.csv',sep=';')
 
