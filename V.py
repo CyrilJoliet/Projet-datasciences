@@ -9,19 +9,20 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import numpy as np
 import matplotlib.colors as mcolors
-from datetime import datetime, timedelta
-from matplotlib.animation import FuncAnimation, PillowWriter
+from datetime import timedelta
+from sklearn.linear_model import LinearRegression
 
 # Lire le fichier CSV avec pandas
 df = pd.read_csv('C:/Users/cyril/OneDrive/Documents/cours/M2/DATASCIENCES/AMDG - Sequence STR1-S-2024-06-25-14H21.csv', sep=';')
 
-# Formatter l'heure
-df['TIME'] = df['TIME'].apply(lambda x: ':'.join([part.zfill(2) for part in x.split(':')]))
-print(df.head())
+start = pd.to_datetime("25-06-24 14:21:18")  # Temps de départ
+
+df['TIME'] = [(start + timedelta(seconds=i)) for i in range(len(df))]
+
 
 # Fonction pour traiter les données
 def process_data(start_time, end_time):
-    collage_time = df[(df['TIME'] >= start_time) & (df['TIME'] <= end_time)].copy()
+    collage_time = df[(df['TIME'] >= start_time) & (df['TIME'] <= end_time)]
     
     colonnes_a_garder = ['DATE', 'TIME', 'SPEED', 'WIDTH', 'LENGTH'] + \
                         [f'M{i}B' for i in range(1, 46)] + [f'F{i}B' for i in range(1, 46)]
@@ -34,7 +35,7 @@ def process_data(start_time, end_time):
     for col in colonnes_temp:
         collage_fibre.loc[:, f'variation_{col}'] = collage_fibre[col].diff()
 
-    n_mesures = 51  # Nombre de mesures (secondes)
+    n_mesures = 61  # Nombre de mesures (secondes)
     n_capteurs = 90
 
     # Coordonnées X Y
@@ -73,58 +74,80 @@ def process_data(start_time, end_time):
 
 # Générer les plages de temps de 23:01:00 à 23:03:00 avec un décalage de 1 seconde
 time_ranges = []
-start_time = datetime.strptime("23:01:15", "%H:%M:%S")
-for i in range(51):  # 121 secondes de 23:01:00 à 23:03:00
-    start_time_str = (start_time + timedelta(seconds=i)).strftime("%H:%M:%S")
-    end_time_str = (start_time + timedelta(seconds=i + 50)).strftime("%H:%M:%S")
+start_time = pd.to_datetime("25-06-24 22:42:10")
+for i in range(61):  # 121 secondes de 23:01:00 à 23:03:00
+    start_time_str = (start_time + timedelta(seconds=i))
+    end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
 
 
-# Traiter et afficher les données pour chaque plage de temps
-#for start_time, end_time in time_ranges:
-   # final_df = process_data(start_time, end_time)
-
-    # Création du graphique
- #   norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
-  #  cmap = plt.get_cmap('coolwarm')
-
- #   plt.figure(figsize=(10, 6))
-  #  scatter = plt.scatter(final_df['X'], final_df['Y'], c=final_df['Variation_t'], s=25, cmap=cmap, norm=norm)
-
- #   cbar = plt.colorbar(scatter)
-  #  cbar.set_label('Variation de Température (°C)')
-  #  plt.title(f'Variation de Température de {start_time} à {end_time}')
- #   plt.show()
-
-# Créer la figure pour l'animation
-fig, ax = plt.subplots(figsize=(10, 6))
-norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
-cmap = plt.get_cmap('coolwarm')
-
-# Initialiser le scatter
-scatter = ax.scatter([], [], c=[], s=25, cmap=cmap, norm=norm)
-cbar = plt.colorbar(scatter, ax=ax)
-cbar.set_label('Variation de Température (°C)')
-
-# Fonction d'initialisation pour l'animation
-def init():
-    ax.set_xlim(300, 3500)  # Limites X
-    ax.set_ylim(0, 5100)  # Limites Y
-    return scatter,
-
-# Fonction de mise à jour pour l'animation
-def update(frame):
-    start_time, end_time = time_ranges[frame]
+for start_time, end_time in time_ranges:
     final_df = process_data(start_time, end_time)
     
-    scatter.set_offsets(final_df[['X', 'Y']].values)
-    scatter.set_array(final_df['Variation_t'].values)
-    ax.set_title(f'Variation de Température de {start_time} à {end_time}')
-    return scatter,
+    seuil = 1
+    filtered_df = final_df[final_df['Variation_t'] > seuil]
 
-# Créer l'animation
-ani = FuncAnimation(fig, update, frames=len(time_ranges), init_func=init, blit=True)
+    # Vérifier s'il y a des points filtrés avant de continuer
+    if filtered_df.empty:
+        
+        norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2,vcenter=0)
+        cmap = plt.get_cmap('coolwarm')  
 
-# Sauvegarder l'animation en tant que GIF
-ani.save('temperature_variation.gif', writer=PillowWriter(fps=5))
 
+        plt.figure(figsize=(10, 6))
+        scatter = plt.scatter(final_df['X'], final_df['Y'], c=final_df['Variation_t'],s=25, cmap=cmap, norm=norm)
+        plt.xlim([300, 3600])  # Remplace 'min_x' et 'max_x' par les limites souhaitées pour l'axe X
+        plt.ylim([-100, 6300])
+
+        cbar = plt.colorbar(scatter)
+        cbar.set_label('Variation de Température (°C)')
+        plt.title(f'Variation de Température de {start_time.time()} à {end_time}')
+
+        plt.show()
+    else: 
+    
+    # 2. Trouver le point de la base du "V" (celui avec le plus petit Y)
+        min_Y_point = filtered_df.loc[filtered_df['Y'].idxmin()]
+
+    # Extraire ses coordonnées X et Y
+        base_X = min_Y_point['X']
+        base_Y = min_Y_point['Y']
+
+    # 3. Séparer les données en deux groupes : à gauche et à droite de ce point
+        left_df = filtered_df[filtered_df['X'] <= base_X]
+        right_df = filtered_df[filtered_df['X'] >= base_X]
+
+    # 4. Effectuer une régression linéaire pour chaque groupe
+    # Régression pour la partie gauche
+        X_left = left_df['X'].values.reshape(-1, 1)
+        y_left = left_df['Y'].values
+        model_left = LinearRegression()
+        model_left.fit(X_left, y_left)
+        y_left_pred = model_left.predict(X_left)
+
+    # Régression pour la partie droite
+        X_right = right_df['X'].values.reshape(-1, 1)
+        y_right = right_df['Y'].values
+        model_right = LinearRegression()
+        model_right.fit(X_right, y_right)
+        y_right_pred = model_right.predict(X_right)
+
+    # Création du graphique
+        norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
+        cmap = plt.get_cmap('coolwarm')
+
+        plt.figure(figsize=(10, 6))
+        scatter = plt.scatter(final_df['X'], final_df['Y'], c=final_df['Variation_t'], s=25, cmap=cmap, norm=norm)
+
+        plt.plot(X_left, y_left_pred, color='black', label=f'Régression gauche\nPente: {model_left.coef_[0]:.2f}')
+        # Tracer la droite de régression pour la partie droite
+        plt.plot(X_right, y_right_pred, color='black', label=f'Régression droite\nPente: {model_right.coef_[0]:.2f}')
+        
+        plt.xlim([300, 3550])  # Remplace 'min_x' et 'max_x' par les limites souhaitées pour l'axe X
+        plt.ylim([-100, 6200])
+
+        cbar = plt.colorbar(scatter)
+        cbar.set_label('Variation de Température (°C)')
+        plt.title(f'Variation de Température de {start_time.time()} à {end_time.time()}')
+        plt.show()
+        
