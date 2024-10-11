@@ -81,8 +81,8 @@ def process_data(start_time, end_time):
 
 # Générer les plages de temps avec un décalage de 1 seconde
 time_ranges = []
-start_time = pd.to_datetime("25-06-24 22:42:20")
-for i in range(61):  # 121 secondes de 23:01:00 à 23:03:00
+start_time = pd.to_datetime("25-06-24 14:30:00")
+for i in range(34140):  # 14H30->23H59
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
