@@ -82,7 +82,7 @@ def process_data(start_time, end_time):
 # Générer les plages de temps avec un décalage de 1 seconde
 time_ranges = []
 start_time = pd.to_datetime("25-06-24 14:30:00")
-for i in range(34140):  # 14H30->23H59
+for i in range(34140):  # 121 secondes de 23:01:00 à 23:03:00
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
@@ -100,6 +100,8 @@ def calculate_angle(m1, m2):
     return angle_degrees
 
 orange_condition_counter = 0
+
+alarme_rouge = []
 
 # Boucle sur les plages horaires
 for start_time, end_time in time_ranges: 
@@ -163,6 +165,8 @@ for start_time, end_time in time_ranges:
                 if orange_condition_counter > 5:
                     background_color = 'red'
                     print(f"Alarme rouge à {end_time.time()}")
+                    
+                    alarme_rouge.append(end_time)
                     
                     fig, ax = plt.subplots(figsize=(10, 6))
                     fig.patch.set_facecolor(background_color)  # Changer la couleur de fond ici
