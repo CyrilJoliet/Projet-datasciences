@@ -85,7 +85,7 @@ plt.figure(figsize=(8, 6))
 for i, x in enumerate(X_values):
     df_x = final_df[final_df['X'] == x]
     
-    # Appliquer un décalage progressif sur Y
+    # Appliquer un décalage progressif sur Y correction Y en fonction de pente et decalage en X
     y_offset = abs(-6 * (i * 50))
     plt.plot(df_x['Y'] + y_offset, df_x['Variation_t'], label=f'X = {x}')
 
