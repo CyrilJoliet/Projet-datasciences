@@ -70,22 +70,23 @@ def process_data(start_time, end_time):
             })
 
         final_df = pd.concat([final_df, temp_df], ignore_index=True)
-
+        
     # Filtrer les capteurs
     final_df = final_df[
-        ~final_df['MxB'].isin([f'M{i}B' for i in list(range(1, 9)) + list(range(38, 46))]) &  # Retirer M1B-M8B, M38B-M45B
-        ~final_df['MxB'].isin([f'F{i}B' for i in list(range(1, 9)) + list(range(38, 46))])    # Retirer F1B-F8B, F38B-F45B
+        ~final_df['MxB'].isin([f'M{i}B' for i in list(range(1, 9)) + list(range(35, 46))]) &  # Retirer M1B-M8B, M38B-M45B
+        ~final_df['MxB'].isin([f'F{i}B' for i in list(range(1, 12)) + list(range(38, 46))])    # Retirer F1B-F8B, F38B-F45B
     ]
 
-    # Décaler les positions X des capteurs FxB de 800 unités
-    final_df.loc[final_df['MxB'].str.startswith('F'), 'X'] += -800
+    # Décaler les positions X des capteurs FxB
+    final_df.loc[final_df['MxB'].str.startswith('F'), 'X'] += -1100
+
 
     return final_df
 
 # Générer les plages de temps avec un décalage de 1 seconde
 time_ranges = []
 start_time = df['TIME'][0]
-for i in range(len(df)-60):  # 121 secondes de 23:01:00 à 23:03:00
+for i in range(len(df)-60):  
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
@@ -93,14 +94,6 @@ for i in range(len(df)-60):  # 121 secondes de 23:01:00 à 23:03:00
 
 
 #------------------------------ Avec simulateur tableau de bord
-
-
-  
-# Fonction pour calculer l'angle entre deux pentes
-def calculate_angle(m1, m2):
-    angle_radians = np.arctan(np.abs((m2 - m1) / (1 + m1 * m2)))
-    angle_degrees = np.degrees(angle_radians)
-    return angle_degrees
 
 orange_condition_counter = 0
 
@@ -161,10 +154,8 @@ for start_time, end_time in time_ranges:
 
         # Vérification des pentes opposées et de l'angle
         if -10 <= slope_left <= -2 and 2 <= slope_right<= 10 and r2l>0.9 and r2r>0.9 and len(close_high)>10:
-            angle = calculate_angle(slope_left, slope_right)
-            if 15 <= angle <= 90:
-                orange_condition_counter += 1
-                if orange_condition_counter > 5:
+            orange_condition_counter += 1
+            if orange_condition_counter > 5:
                     background_color = 'red'
                     print(f"Alarme rouge à {end_time.time()}")
                     
@@ -192,12 +183,11 @@ for start_time, end_time in time_ranges:
 
                     plt.legend()
                     plt.show()
-                else:
+            else:
                     background_color = 'orange'
                     alarme_orange.append(end_time)
                     print(f"Alarme orange à {end_time.time()}")
-            else:
-                orange_condition_counter = 0  # Réinitialiser le compteur si la condition n'est plus remplie
+            
         else:
             orange_condition_counter = 0
             
