@@ -184,7 +184,7 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
         
 
         # Vérification des pentes opposées et de l'angle
-        if slope_left*slope_right<0 and -10 <= slope_left <= -2 and 2 <= slope_right<= 10 and len(close_high)>20 and r2l>0.5 and r2r>0.5:
+        if slope_left*slope_right<0 and -10 <= slope_left <= -2 and 2 <= slope_right<= 10 and len(close_high)>20 and r2l>0.9 and r2r>0.9:
         
                 orange_condition_counter += 1
                 if orange_condition_counter > 5:
