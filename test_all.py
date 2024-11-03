@@ -20,7 +20,7 @@ warnings.filterwarnings("ignore")
 
 
 # Lire le fichier CSV avec pandas
-df= pd.read_csv("C:/Users/abdel/Desktop/Git/Project_EBDS/new/AMDG - Sequence STR1-S-2024-10-15-01H44.csv", sep=';')
+df= pd.read_csv("D:/nouveaux données/AMDG - Sequence STR1-S-2024-10-08-00H05 (2).csv", sep=';')
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
 
 # Accéder au premier élément de la colonne 'DATETIME'
@@ -102,7 +102,7 @@ alarme_orange = []
 
 from tqdm import tqdm
 # Boucle sur les plages horaires
-for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"):
+for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"): 
     final_df = process_data(start_time, end_time)
     
     seuil = 1
