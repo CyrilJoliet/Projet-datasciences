@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore")
 
 
 # Lire le fichier CSV avec pandas
-df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\AMDG - Sequence STR1-S-2024-06-25-14H21 OK 2col.csv", sep=';')
+df= pd.read_csv("C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/Industeel - Sequence STR1-S-2024-02-07-02H52.csv", sep=';')
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
 
 # Accéder au premier élément de la colonne 'DATETIME'
@@ -31,37 +31,37 @@ df['TIME'] = [(start + timedelta(seconds=i)) for i in range(len(df))]
 
 
 # Fonction pour traiter les données
-def process_data(start_time, end_time, fibre='B'):
+def process_data(start_time, end_time, fibre='A'):
     # Vérification de la validité de l'argument fibre
-    if fibre not in ['B', 'D']:
-        raise ValueError("Le paramètre 'fibre' doit être 'B' ou 'D'")
+    if fibre not in ['A', 'C', 'B', 'D']:
+        raise ValueError("Le paramètre 'fibre' doit être 'A' ou 'C'")
     
     # Filtrer les données sur la période souhaitée
     collage_time = df[(df['TIME'] >= start_time) & (df['TIME'] <= end_time)]
     
     # Colonnes à garder, adaptant MxB/FxB ou MxD/FxD selon fibre
     colonnes_a_garder = ['DATE', 'TIME', 'SPEED', 'WIDTH', 'LENGTH'] + \
-                        [f'M{i}{fibre}' for i in range(1, 46)] + [f'F{i}{fibre}' for i in range(1, 46)]
+                        [f'M{i}{fibre}' for i in range(1, 43)] + [f'F{i}{fibre}' for i in range(1, 43)]
 
     collage_fibre = collage_time[colonnes_a_garder]
 
     # Colonnes pour les variations de température (BxB ou DxD selon fibre)
-    colonnes_temp = [f'M{i}{fibre}' for i in range(1, 46)] + [f'F{i}{fibre}' for i in range(1, 46)]
+    colonnes_temp = [f'M{i}{fibre}' for i in range(1, 43)] + [f'F{i}{fibre}' for i in range(1, 43)]
 
     # Calculer les variations de température
     for col in colonnes_temp:
         collage_fibre[f'variation_{col}'] = collage_fibre[col].diff()
 
     n_mesures = 61  # Nombre de mesures (secondes)
-    n_capteurs = 90
+    n_capteurs = 84
 
     # Coordonnées X et Y
     Y = np.arange(n_mesures) * 100  
-    X = [i * 50 for i in range(45)] + [(i * 50 + 228.5 + 50 * 44) for i in range(45)] 
+    X = [i * 50 for i in range(42)] + [(i * 50 + 228.5 + 50 * 41) for i in range(42)] 
     final_df = pd.DataFrame(columns=['X', 'Y', 'Variation_t'])
 
     for i in range(n_capteurs):
-        if i < 45:
+        if i < 42:
             temp_df = pd.DataFrame({
                 'X': [X[i]] * n_mesures,             
                 'Y': Y,                              
@@ -72,16 +72,16 @@ def process_data(start_time, end_time, fibre='B'):
             temp_df = pd.DataFrame({
                 'X': [X[i]] * n_mesures,             
                 'Y': Y,                              
-                'Variation_t': collage_fibre[f'variation_F{i-44}{fibre}'],  # Variation pour F
-                'MxB': [f'F{i-44}{fibre}'] * n_mesures  # Nom du capteur F
+                'Variation_t': collage_fibre[f'variation_F{i-41}{fibre}'],  # Variation pour F
+                'MxB': [f'F{i-41}{fibre}'] * n_mesures  # Nom du capteur F
             })
 
         final_df = pd.concat([final_df, temp_df], ignore_index=True)
 
     # Filtrer les capteurs en fonction de fibre
     final_df = final_df[
-        ~final_df['MxB'].isin([f'M{i}{fibre}' for i in list(range(1, 9)) + list(range(36, 46))]) &  # Retirer M1x-M8x, M38x-M45x
-        ~final_df['MxB'].isin([f'F{i}{fibre}' for i in list(range(1, 11)) + list(range(38, 46))])    # Retirer F1x-F8x, F38x-F45x
+        ~final_df['MxB'].isin([f'M{i}{fibre}' for i in list(range(1, 9)) + list(range(36, 43))]) &  # Retirer M1x-M8x, M38x-M42x
+        ~final_df['MxB'].isin([f'F{i}{fibre}' for i in list(range(1, 11)) + list(range(38, 43))])    # Retirer F1x-F8x, F38x-F42x
     ]
 
     # Décaler les positions X des capteurs FxD (ou FxB)
@@ -91,7 +91,7 @@ def process_data(start_time, end_time, fibre='B'):
 
 # Générer les plages de temps de 23:01:00 à 23:03:00 avec un décalage de 1 seconde
 time_ranges = []
-start_time = pd.to_datetime("06-25-24 23:01:25")
+start_time = pd.to_datetime("2024-02-07 02:52:30")
 for i in range(15):  # 121 secondes de 23:01:00 à 23:03:00
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
@@ -111,7 +111,7 @@ orange_condition_counter = 0
 
 # Boucle sur les plages horaires
 for frame, (start_time, end_time)    in enumerate(time_ranges): 
-    final_df = process_data(start_time, end_time,fibre="B")
+    final_df = process_data(start_time, end_time,fibre= "A")
     
     seuil = 1
     filtered_df = final_df[final_df['Variation_t'] > seuil]
@@ -171,9 +171,6 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
         y_right_pred = model_right.predict(X_right)
         slope_right = model_right.coef_[0]
         r2r = model_right.score(X_right, y_right)
-        
-        
-        
         
          
         L = final_df[(final_df['X'] >= int(X_left.min())) & (final_df['X'] <= int(X_left.max()))]['X'].unique()
