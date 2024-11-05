@@ -1,4 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Oct  7 17:55:49 2024
 
+@author: cyril
+"
+
+
+# -*- coding: utf-8 -*-
+"""
 
 import pandas as pd
 import math
@@ -8,18 +17,18 @@ import matplotlib.colors as mcolors
 from datetime import timedelta
 from sklearn.linear_model import LinearRegression
 import warnings
-import os
-from PIL import Image
 warnings.filterwarnings("ignore")
 
 
 # Lire le fichier CSV avec pandas
-df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\AMDG - Sequence STR1-S-2024-10-13-00H06 OK 1 col.csv", sep=';')
+df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\AMDG - Sequence STR1-S-2024-06-25-14H21 OK 2col.csv", sep=';')
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
 
 # Accéder au premier élément de la colonne 'DATETIME'
 start = df['DATETIME'][0]
 df['TIME'] = [(start + timedelta(seconds=i)) for i in range(len(df))]
+
+
 
 
 # Fonction pour traiter les données
@@ -85,10 +94,10 @@ def process_data(start_time, end_time, fibre='B',n_capt=45):
 
     return final_df
 
-# Générer les plages de temps de 23:01:00 à 23:03:00 avec un décalage de 1 seconde
+# Générer les plages de temps avec un décalage de 1 seconde
 time_ranges = []
-start_time = pd.to_datetime("10-13-24 04:13:30")
-for i in range(1):  # 121 secondes de 23:01:00 à 23:03:00
+start_time = pd.to_datetime("06-25-24 22:14:30")
+for i in range(len(df)-60):  
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
@@ -97,14 +106,14 @@ for i in range(1):  # 121 secondes de 23:01:00 à 23:03:00
 
 #------------------------------ Avec simulateur tableau de bord
 
-image_folder = 'temp_images'
-if not os.path.exists(image_folder):
-    os.makedirs(image_folder)
-
 orange_condition_counter = 0
 
+alarme_rouge = []
+alarme_orange = []
+
+from tqdm import tqdm
 # Boucle sur les plages horaires
-for frame, (start_time, end_time)    in enumerate(time_ranges): 
+for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"): 
     final_df = process_data(start_time, end_time)
     
     seuil = 1
@@ -115,31 +124,8 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
     filtered_df = filtered_df[filtered_df['Variation_t'] > seuil]
 
     # Vérifier s'il y a des points filtrés avant de continuer
-    if filtered_df.empty:
-        norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
-        cmap = plt.get_cmap('coolwarm')  
+    if not filtered_df.empty:
         
-        fig, ax = plt.subplots(figsize=(10, 6)) #plt.figure(figsize=(10, 6))
-        scatter = plt.scatter(final_df['X'], final_df['Y'], c=final_df['Variation_t'], s=25, cmap=cmap, norm=norm)
-        plt.xlim([300, 3600])  
-        plt.ylim([-100, 6300])
-        
-        #Déterminer la couleur de fond en fonction des conditions
-        background_color = 'green'  # Par défaut
-        fig.patch.set_facecolor(background_color)  # Changer la couleur de fond ici
-        norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
-        cmap = plt.get_cmap('coolwarm')
-
-        cbar = plt.colorbar(scatter)
-        cbar.set_label('Δ')
-        plt.title(f'{end_time}')
-        
-        plt.savefig(f'{image_folder}/image_{frame}.png')
-        plt.show()
-        
-        
-    else: 
-        # 2. Trouver le point de la base du "V" (celui avec le plus petit Y)
         
         min_Y_point = filtered_df.loc[filtered_df['Y'].idxmin()]
 
@@ -247,53 +233,45 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
         # Vérification des pentes opposées et de l'angle
         if  -17 <= slope_left <= -2 and 2 <= slope_right<= 17 and r2l>0.5 and r2r>0.5 and (0>maL or 0>maR):
         
-                orange_condition_counter += 1
-                if orange_condition_counter > 5 and len(F2H)>25 and r2l>0.8 and r2r>0.8:
+            orange_condition_counter += 1
+            if orange_condition_counter > 5 and len(F2H)>25 and r2l>0.8 and r2r>0.8:
                     background_color = 'red'
                     print(f"Alarme rouge à {end_time.time()}")
-                else:
+                    
+                    alarme_rouge.append(end_time)
+                    
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    fig.patch.set_facecolor(background_color)  # Changer la couleur de fond ici
+
+                    norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
+                    cmap = plt.get_cmap('coolwarm')
+
+                    scatter = ax.scatter(final_df['X'], final_df['Y'], c=final_df['Variation_t'], s=25, cmap=cmap, norm=norm)
+
+                    # Tracer la droite de régression pour la partie gauche
+                    ax.plot(X_left, y_left_pred, color='black', label=f'Régression gauche\nPente: {slope_left:.2f}')
+                    # Tracer la droite de régression pour la partie droite
+                    ax.plot(X_right, y_right_pred, color='black', label=f'Régression droite\nPente: {slope_right:.2f}')
+                    
+                    plt.xlim([300, 3550])  
+                    plt.ylim([-100, 6200])
+
+                    cbar = plt.colorbar(scatter)
+                    cbar.set_label('Variation de Température (°C)')
+                    plt.title(f'Variation de Température de {start_time.time()} à {end_time.time()}')
+
+                    plt.legend()
+                    plt.show()
+            else:
                     background_color = 'orange'
+                    alarme_orange.append(end_time)
                     print(f"Alarme orange à {end_time.time()}")
-         # Réinitialiser le compteur si la condition n'est plus remplie
+            
         else:
             orange_condition_counter = 0
             
             
-            
-            # 6. Création du graphique avec changement de couleur de fond
-        fig, ax = plt.subplots(figsize=(10, 6))
-        fig.patch.set_facecolor(background_color)  # Changer la couleur de fond ici
+         
+      
 
-        norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
-        cmap = plt.get_cmap('coolwarm')
-
-        scatter = ax.scatter(final_df['X'], final_df['Y'], c=final_df['Variation_t'], s=25, cmap=cmap, norm=norm)
-
-        # Tracer la droite de régression pour la partie gauche
-        ax.plot(X_left, y_left_pred, color='black', label=f'Régression gauche\nPente: {slope_left:.2f}')
-        # Tracer la droite de régression pour la partie droite
-        ax.plot(X_right, y_right_pred, color='black', label=f'Régression droite\nPente: {slope_right:.2f}')
         
-        plt.xlim([300, 3600])  
-        plt.ylim([-100, 6300])
-
-        cbar = plt.colorbar(scatter)
-        cbar.set_label('Δ')
-        plt.title(f'{end_time}')
-
-        plt.savefig(f'{image_folder}/image_{frame}.png')
-        plt.show()
-        
-images = []
-for frame in range(len(time_ranges)):
-    img_path = f'{image_folder}/image_{frame}.png'
-    images.append(Image.open(img_path))
-    
-# Sauvegarder l'animation
-gif_path = 'temperature_variation2.gif'
-images[0].save(gif_path, save_all=True, append_images=images[1:], duration=1000, loop=1)
-
-# Supprimer les images temporaires si nécessaire
-for img in os.listdir(image_folder):
-    os.remove(os.path.join(image_folder, img))
-os.rmdir(image_folder)
