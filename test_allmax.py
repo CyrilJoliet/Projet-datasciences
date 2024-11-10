@@ -21,7 +21,7 @@ warnings.filterwarnings("ignore")
 
 
 # Lire le fichier CSV avec pandas
-df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\AMDG - Sequence STR1-S-2024-06-25-14H21 OK 2col.csv", sep=';')
+df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\wetransfer_fichiers-industeel_2024-11-04_1143\Industeel - Sequence STR1-S-2024-02-07-02H52.csv", sep=';')
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
 
 # Accéder au premier élément de la colonne 'DATETIME'
@@ -32,10 +32,10 @@ df['TIME'] = [(start + timedelta(seconds=i)) for i in range(len(df))]
 
 
 # Fonction pour traiter les données
-def process_data(start_time, end_time, fibre='B',n_capt=45):
+def process_data(start_time, end_time, fibre='A',n_capt=42):
     # Vérification de la validité de l'argument fibre
     if fibre not in ['B', 'D','A','C']:
-        raise ValueError("Le paramètre 'fibre' doit être 'B' ou 'D'")
+        raise ValueError("paramètre 'fibre' non valide")
     
     # Filtrer les données sur la période souhaitée
     collage_time = df[(df['TIME'] >= start_time) & (df['TIME'] <= end_time)]
@@ -81,7 +81,7 @@ def process_data(start_time, end_time, fibre='B',n_capt=45):
         
         ce=int(collage_fibre["WIDTH"].max()/50)-2
         p=math.ceil((n_capt-ce)/2)
-        print(p)
+       
         
     # Filtrer les capteurs en fonction de fibre
     final_df = final_df[
@@ -96,7 +96,7 @@ def process_data(start_time, end_time, fibre='B',n_capt=45):
 
 # Générer les plages de temps avec un décalage de 1 seconde
 time_ranges = []
-start_time = pd.to_datetime("06-25-24 22:14:30")
+start_time = df['TIME'][0]
 for i in range(len(df)-60):  
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
@@ -157,8 +157,6 @@ for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"):
         r2r = model_right.score(X_right, y_right)
         
         
-        
-        
          
         L = final_df[(final_df['X'] >= int(X_left.min())) & (final_df['X'] <= int(X_left.max()))]['X'].unique()
         L = list(L)
@@ -166,8 +164,6 @@ for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"):
         R = final_df[(final_df['X'] >= int(X_right.min())) & (final_df['X'] <= int(X_right.max()))]['X'].unique()
         R = list(R)
     
-        
-        
         
         variations_before_peak_L = []
         variations_after_peak_L = []
@@ -219,13 +215,8 @@ for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"):
         # 5. Déterminer la couleur de fond en fonction des conditions
         background_color = 'green'  # Par défaut
         
-        #distance de la base 
-        dist = 500  # Ajuste cette valeur selon ce que tu considères proche
-
-        # Filtrer les points proches de base_X en X
-        close_high = filtered_df[(filtered_df['X'] >= base_X - dist) & (filtered_df['X'] <= base_X + dist)]
         
-        F2=process_data(start_time, end_time,fibre="B")
+        F2=process_data(start_time, end_time)
         
         seuil = 1
         F2H = final_df[final_df['Variation_t'] > seuil]
