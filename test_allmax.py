@@ -21,7 +21,7 @@ warnings.filterwarnings("ignore")
 
 
 # Lire le fichier CSV avec pandas
-df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\wetransfer_fichiers-industeel_2024-11-04_1143\Industeel - Sequence STR1-S-2024-02-12-22H23.csv", sep=';')
+df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\wetransfer_fichiers-industeel_2024-11-04_1143\Industeel - Sequence STR1-S-2024-04-14-19H09.csv", sep=';')
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
 
 # Accéder au premier élément de la colonne 'DATETIME'
@@ -122,9 +122,10 @@ for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"):
 # Filter final_df to only keep the rows with the maximum 'Variation_t' for each 'X'
     filtered_df = final_df.loc[max_indices]
     filtered_df = filtered_df[filtered_df['Variation_t'] > seuil]
+    fil=final_df[final_df['Variation_t']>seuil]
 
     # Vérifier s'il y a des points filtrés avant de continuer
-    if not filtered_df.empty:
+    if not filtered_df.empty and len(fil)>50:
         
         
         min_Y_point = filtered_df.loc[filtered_df['Y'].idxmin()]
@@ -136,7 +137,7 @@ for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"):
         # 3. Séparer les données en deux groupes : à gauche et à droite de ce point
         left_df = filtered_df[filtered_df['X'] <= base_X]
         right_df = filtered_df[filtered_df['X'] >= base_X]
-        if len(left_df)>3 or len(right_df)>3:
+        if len(left_df)>3 and len(right_df)>3:
         # 4. Effectuer une régression linéaire pour chaque groupe
         # Régression pour la partie gauche
             X_left = left_df['X'].values.reshape(-1, 1)
@@ -158,7 +159,7 @@ for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"):
         
         
             
-            T = final_df[(final_df['X'] >= int(X_left.min())) & (final_df['X'] <= int(X_right.max()))&(final_df['Y'] == 6000)]
+            T = final_df[(final_df['X'] >= int(X_left.min())+100) & (final_df['X'] <= int(X_right.max())-100)&(final_df['Y'] == 6000)]
            
         
             L = final_df[(final_df['X'] >= int(X_left.min())) & (final_df['X'] <= int(X_left.max()))]['X'].unique()

@@ -87,8 +87,8 @@ def process_data(start_time, end_time, fibre='A',n_capt=42):
 
 # Générer les plages de temps de 23:01:00 à 23:03:00 avec un décalage de 1 seconde
 time_ranges = []
-start_time = pd.to_datetime("02-12-24 23:22:00")
-for i in range(60):  # 121 secondes de 23:01:00 à 23:03:00
+start_time = pd.to_datetime("02-12-24 23:29:15")
+for i in range(10):  # 121 secondes de 23:01:00 à 23:03:00
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
@@ -113,9 +113,10 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
 # Filter final_df to only keep the rows with the maximum 'Variation_t' for each 'X'
     filtered_df = final_df.loc[max_indices]
     filtered_df = filtered_df[filtered_df['Variation_t'] > seuil]
+    fil=final_df[final_df['Variation_t']>seuil]
     
     # Vérifier s'il y a des points filtrés avant de continuer
-    if filtered_df.empty:
+    if filtered_df.empty or len(fil)<50:
         norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
         cmap = plt.get_cmap('coolwarm')  
         
@@ -138,7 +139,7 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
         plt.show()
         
         
-    else : 
+    else: 
         # 2. Trouver le point de la base du "V" (celui avec le plus petit Y)
         
         min_Y_point = filtered_df.loc[filtered_df['Y'].idxmin()]
@@ -151,7 +152,7 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
         left_df = filtered_df[filtered_df['X'] <= base_X]
         right_df = filtered_df[filtered_df['X'] >= base_X]
         
-        if len(left_df)>3 or len(right_df)>3:
+        if len(left_df)>3 and len(right_df)>3:
         # 4. Effectuer une régression linéaire pour chaque groupe
         # Régression pour la partie gauche
             X_left = left_df['X'].values.reshape(-1, 1)
@@ -174,7 +175,7 @@ for frame, (start_time, end_time)    in enumerate(time_ranges):
         
             
             T = final_df[(final_df['X'] >= int(X_left.min())) & (final_df['X'] <= int(X_right.max()))&(final_df['Y'] == 6000)]
-            print(T['Variation_t'].mean())
+            
         
             L = final_df[(final_df['X'] >= int(X_left.min())) & (final_df['X'] <= int(X_left.max()))]['X'].unique()
             L = list(L)
