@@ -70,31 +70,58 @@ def process_data(df,start_time, end_time, captors,n_capt):
 
     return final_df,Speed
 
-#Visualisation of temerature variations
+#Visualisation of temperature variations
+  
 
-def plot(df,end_time,background_color,X_left= [],y_left_pred=[],X_right=[],y_right_pred=[],r2l=0,r2r=0) :
-    norm = mcolors.TwoSlopeNorm(vmin=-1., vmax=2, vcenter=0)
-    cmap = plt.get_cmap('coolwarm')  
-
-    fig, ax = plt.subplots(figsize=(10, 6)) 
-    
-    scatter = plt.scatter(df['X'], df['Y'], c=df['Variation_t'], s=25, cmap=cmap, norm=norm)
-    if len(X_left) > 0 and len(y_left_pred) > 0 and len(X_right) > 0 and len(y_right_pred) > 0:  # Vérifie si les valeurs ne sont pas nulles ou vides
-        ax.plot(X_left, y_left_pred, color='black')
-        ax.plot(X_right, y_right_pred, color='black')
-        ax.text(0.9, 0.02, f'$R^{{2}}_{{\\text{{left}}}}={r2l:.2f}$\n$R^{{2}}_{{\\text{{right}}}}={r2r:.2f}$', transform=ax.transAxes, 
-        fontsize=12, verticalalignment='bottom', horizontalalignment='center', 
-        bbox=dict(boxstyle="round", facecolor="white", alpha=1))
-    plt.xlim([300, 3600])  
-
-    fig.patch.set_facecolor(background_color)
-    
+def plot(df, end_time, background_color, X_left=[], y_left_pred=[], X_right=[], y_right_pred=[], r2l=0, r2r=0, coefficient=8.2424):
+    import matplotlib.colors as mcolors
+    from matplotlib.patches import Rectangle
+    norm = mcolors.TwoSlopeNorm(vmin=-1.0, vmax=2, vcenter=0)
     cmap = plt.get_cmap('coolwarm')
 
+    fig, ax = plt.subplots(figsize=(10, 6))  # Main plot
+    scatter = plt.scatter(df['X'], df['Y'], c=df['Variation_t'], s=25, cmap=cmap, norm=norm)
+
+    # Plot regression lines if data is provided
+    if len(X_left) > 0 and len(y_left_pred) > 0 and len(X_right) > 0 and len(y_right_pred) > 0:
+        ax.plot(X_left, y_left_pred, color='black')
+        ax.plot(X_right, y_right_pred, color='black')
+        ax.text(
+            0.9, 0.02,
+            f'$R^{{2}}_{{\\text{{left}}}}={r2l:.2f}$\n$R^{{2}}_{{\\text{{right}}}}={r2r:.2f}$',
+            transform=ax.transAxes,
+            fontsize=12, verticalalignment='bottom', horizontalalignment='center',
+            bbox=dict(boxstyle="round", facecolor="white", alpha=1),
+        )
+    plt.xlim([300, 3600])
+
+    # Background and colorbar
+    fig.patch.set_facecolor(background_color)
     cbar = plt.colorbar(scatter)
     cbar.set_label('Δ')
-    plt.title(f'{end_time}')
 
+    # Add the rectangle bar at the top with red-yellow-green gradient
+    gradient_ax = fig.add_axes([0.13, 0.92, 0.6, 0.02])  # Position: [left, bottom, width, height]
+    gradient = np.linspace(0, 1, 256).reshape(1, -1)  # Create gradient values
+    gradient_ax.imshow(
+        gradient, aspect='auto', cmap=plt.get_cmap('RdYlGn').reversed(), origin='lower'  # Use 'RdYlGn' colormap for red-yellow-green
+    )
+    gradient_ax.set_xticks([])
+    gradient_ax.set_yticks([])
+
+    # Add description text on top of the rectangle bar
+    gradient_ax.text(
+        0.5, 1.05, "Score de 'collage' ??" , color='black', fontsize=12, ha='center', va='bottom', transform=gradient_ax.transAxes
+    )
+    # Add vertical line to indicate the coefficient value
+    coeff_position = (coefficient - 1) / 9 * 255  # Scale coefficient (1-10) to gradient (0-255)
+    gradient_ax.axvline(x=coeff_position, color='black', linewidth=2, linestyle='--')  # Draw the line
+    gradient_ax.text(
+        coeff_position, 0.5, f'{coefficient}', color='black', fontsize=10, ha='center', va='center', transform=gradient_ax.transData,
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.8)
+    )
+    title_position = 1.25
+    plt.title(f'{end_time}', loc='center', x=title_position, y=1.05)  # Title positioned based on `title_position`
     plt.show()
 
 #Linear regressions    

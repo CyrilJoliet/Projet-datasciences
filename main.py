@@ -8,15 +8,15 @@ warnings.filterwarnings("ignore")
 
 
 #Import DATA
-df= pd.read_csv("AMDG - Sequence STR1-S-2024-06-25-14H21 OK 2col 22h42 & 23h01.csv", sep=';')
+df= pd.read_csv("C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/Industeel - Sequence STR1-S-2024-02-07-02H52.csv", sep=';')
 
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S') 
 df['TIME'] = [(df['DATETIME'][0]+ timedelta(seconds=i)) for i in range(len(df))]
 
 
-#  Generate 60 sec timeframes from start_time incremented by 1sec
+#  Generate 60 sec timeframes from start_time incremented by 1sec   2024-02-07 02:52:30
 time_ranges = []
-start_time = pd.to_datetime("06-25-24 22:42:33")
+start_time = pd.to_datetime("02-07-24 02:52:30")
 for i in range(1):  
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
@@ -27,7 +27,7 @@ orange_condition_counter = 0
 
 # Loop on the time frames
 for start_time, end_time  in time_ranges: 
-    data = process_data(df,start_time, end_time, captors='B',n_capt=45)
+    data = process_data(df,start_time, end_time, captors='A',n_capt=42)
     final_df=data[0]
     Speed=data[1]
     high=final_df[final_df['Variation_t']>1]
@@ -85,7 +85,7 @@ for start_time, end_time  in time_ranges:
             
         # Verification on regression slope and R2 and on temperature variation
         #raise alert if conditions are respected
-        #change color and ad regressions on visualisation
+        #change color and add regressions on visualisation
         
             if  -15 <= (Left[2] <= 0 or 0 <= Right[2]<= 15) and (Left[3]>0.8 or Right[3]>0.8) and (0>variation_L or 0>variation_R):
         
