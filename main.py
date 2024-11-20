@@ -1,6 +1,7 @@
 
 
 import pandas as pd
+import numpy as np
 from datetime import timedelta
 import warnings
 from fun import process_data,plot,linear,temp
@@ -8,7 +9,7 @@ warnings.filterwarnings("ignore")
 
 
 #Import DATA
-df= pd.read_csv("C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/Industeel - Sequence STR1-S-2024-02-07-02H52.csv", sep=';')
+df= pd.read_csv("C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/Industeel - Sequence STR1-S-2024-02-12-22H23.csv", sep=';')
 
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S') 
 df['TIME'] = [(df['DATETIME'][0]+ timedelta(seconds=i)) for i in range(len(df))]
@@ -16,7 +17,7 @@ df['TIME'] = [(df['DATETIME'][0]+ timedelta(seconds=i)) for i in range(len(df))]
 
 #  Generate 60 sec timeframes from start_time incremented by 1sec   2024-02-07 02:52:30
 time_ranges = []
-start_time = pd.to_datetime("02-07-24 02:52:30")
+start_time = pd.to_datetime("02-12-24 23:15:28")
 for i in range(1):  
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
@@ -31,12 +32,12 @@ for start_time, end_time  in time_ranges:
     final_df=data[0]
     Speed=data[1]
     high=final_df[final_df['Variation_t']>1]
-    
+    score = 0
+
     # Check if there is more than 30 high value (variation>1)
     if  len(high)<30:
-        
-        plot(final_df,end_time,"green")
-        
+        plot(final_df,end_time,"green",coefficient = score)
+
     else: 
         #Take maximum values 
         filtered_df=high.loc[high.groupby('X')['Variation_t'].idxmax()]
@@ -44,7 +45,7 @@ for start_time, end_time  in time_ranges:
         #Find lower point as base off the V with at least 20 high values around
         points_around_min = []
         i=0
-        while len(points_around_min)<10:
+        while len(points_around_min) < 10:
             
             sorted_df = filtered_df.sort_values(by='Y').reset_index(drop=True)
             min_Y_point = filtered_df.loc[(filtered_df == sorted_df.iloc[i]).all(axis=1)].iloc[0]
@@ -84,9 +85,9 @@ for start_time, end_time  in time_ranges:
             T=Td['Variation_t'].mean()
             
         # Verification on regression slope and R2 and on temperature variation
-        #raise alert if conditions are respected
-        #change color and add regressions on visualisation
-        
+        # raise alert if conditions are respected
+        # change color and add regressions on the visualisation
+
             if  -15 <= (Left[2] <= 0 or 0 <= Right[2]<= 15) and (Left[3]>0.8 or Right[3]>0.8) and (0>variation_L or 0>variation_R):
         
                     orange_condition_counter += 1
@@ -100,13 +101,27 @@ for start_time, end_time  in time_ranges:
                     else:
                             background_color = 'orange'
                             print(f"Alert orange à {end_time.time()}")
-                            
+                    
+                    # calculation of the scores
+                    # left[2], right[2], left[3], right[3], var_l, var_R, counter
+                    scores = np.array([1,                                # left[2] 
+                                       1,                                # right[2] 
+                                       ( Right[3] - 0.8 ) / 0.2,         # right[3]
+                                       ( Left[3] - 0.8 ) / 0.2,          # left[3]
+                                       1,                                # var_l
+                                       1,                                # var_R
+                                       orange_condition_counter / 5])    # counter  
+
             else:
-                orange_condition_counter = 0
+                scores = np.array([0,0,0,0,0,0,0])
                 background_color='green'
             
-            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3])
+            ggg = 1/7
+            weights = np.array([ggg,ggg,ggg,ggg,ggg,ggg,ggg])
+            score = round(np.dot(scores,weights),1)
+            print(score)
+            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],score)
            
         else :
-            plot(final_df,end_time,'green')
+            plot(final_df,end_time,'green',coefficient = score)
  
