@@ -73,7 +73,7 @@ def process_data(df,start_time, end_time, captors,n_capt):
 #Visualisation of temperature variations
   
 
-def plot(df, end_time, background_color, X_left=[], y_left_pred=[], X_right=[], y_right_pred=[], r2l=0, r2r=0, coefficient = 8.2424):
+def plot(df, end_time, background_color, X_left=[], y_left_pred=[], X_right=[], y_right_pred=[], r2l=0, r2r=0, coefficient = 0):
     import matplotlib.colors as mcolors
     from matplotlib.patches import Rectangle
     norm = mcolors.TwoSlopeNorm(vmin=-1.0, vmax=2, vcenter=0)
@@ -114,7 +114,7 @@ def plot(df, end_time, background_color, X_left=[], y_left_pred=[], X_right=[], 
         0.5, 1.05, "Score de 'collage' ??" , color='black', fontsize=12, ha='center', va='bottom', transform=gradient_ax.transAxes
     )
     # Add vertical line to indicate the coefficient value
-    coeff_position = coefficient * 255  # Scale coefficient (1-10) to gradient (0-255)
+    coeff_position = coefficient * 255  # Scale coefficient (0-1) to gradient (0-255)
     gradient_ax.axvline(x=coeff_position, color='black', linewidth=2, linestyle='--')  # Draw the line
     gradient_ax.text(
         coeff_position, 0.5, f'{coefficient}', color='black', fontsize=10, ha='center', va='center', transform=gradient_ax.transData,
