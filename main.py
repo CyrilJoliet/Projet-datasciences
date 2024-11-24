@@ -124,9 +124,9 @@ for start_time, end_time  in time_ranges:
             # ggg = 1/7
             # weights = np.array([ggg,ggg,ggg,ggg,ggg,ggg,ggg])
             print("orange counter:",orange_condition_counter )
-            score += min ( orange_condition_counter/5 , 0.5 )
+            score += min ( orange_condition_counter/10 , 0.65 )
             print(score)
-            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],score)
+            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],round(score,2))
            
         else :
             plot(final_df,end_time,'green',coefficient = score)
