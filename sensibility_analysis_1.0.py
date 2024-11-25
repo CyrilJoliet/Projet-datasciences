@@ -43,15 +43,16 @@ file_path = "C:/Users/abdel/Desktop/log.txt"  # Path to the text file
 
 
 # parameters to loop over
-pars = [0.1,0.5,1.5]
+pars = [0.1,0.3,0.5,0.7,0.9,1.1,1.3,1.5,2]
 # Outer loop with tqdm progress bar
-for outer_item in tqdm(pars, desc="Outer Loop Progress"):
+for item in tqdm(pars, desc="Outer Loop Progress"):
+    log_to_file(file_path, f"=============================== for VarT = {item}")
 # Process on generate time frames
     for start_time, end_time in tqdm(time_ranges, desc="Processing time ranges"): 
-        data = process_data(df,start_time, end_time, captors='B',n_capt=45)
+        data = process_data(df,start_time, end_time, captors='A',n_capt=42)   # A or D
         final_df=data[0]
         Speed=data[1]
-        high=final_df[final_df['Variation_t']>1]
+        high=final_df[final_df['Variation_t']>item]
 
         # Check if there is more than 30 high value (variation>1)
         if  len(high)<30:
@@ -126,7 +127,7 @@ for outer_item in tqdm(pars, desc="Outer Loop Progress"):
                         print(f"Alert orange à {end_time.time()}")
                         log_to_file(file_path, f"Alert orange à {end_time.time()}")  # Write log entry
                         orange_alert.append(end_time)
-                    plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3])             
+                    # plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3])             
                 else:
                     orange_condition_counter = 0
                     background_color='green'
