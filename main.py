@@ -1,5 +1,4 @@
 
-
 import pandas as pd
 import numpy as np
 from datetime import timedelta
@@ -8,15 +7,19 @@ from fun import process_data,plot,linear,temp
 warnings.filterwarnings("ignore")
 
 
-#Import DATA
+# Import DATA
+file_name = 'Industeel - Sequence STR1-S-2024-02-12-22H23.csv'
+df = pd.read_csv(f'C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/{file_name}', sep=';')
 
-df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S') 
+# Transform the date in datetime format
+df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
 df['TIME'] = [(df['DATETIME'][0]+ timedelta(seconds=i)) for i in range(len(df))]
 
 
-#  Generate 60 sec timeframes from start_time incremented by 1sec   2024-02-07 02:52:30
+#  Generate 60 sec timeframes from start_time incremented by 1sec 
 time_ranges = []
-start_time = pd.to_datetime("02-12-24 23:14:40")
+start_time = pd.to_datetime("02-12-24 23:15:00")
+for i in range(100):  
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
@@ -26,15 +29,15 @@ orange_condition_counter = 0
 
 # Loop on the time frames
 for start_time, end_time  in time_ranges: 
-    data = process_data(df,start_time, end_time, captors='A',n_capt=42)
+    data = process_data(df,start_time, end_time, captors='A',n_capt= 42)  # A or D   n_capt == 42 or 45
     final_df=data[0]
     Speed=data[1]
     high = final_df[final_df['Variation_t']>1]
-    score = min( len(high) / 100 , 0.35)   
-    print("number of high: ", len(high))
+    score = round(min( len(high) / 100 , 0.35),2)
+
     # Check if there is more than 30 high value (variation>1)
     if  len(high)<30:
-        plot(final_df,end_time,"green",coefficient = score)
+        plot(final_df,end_time,"green",coefficient = round(score,2))
 
     else: 
         #Take maximum values 
@@ -61,6 +64,7 @@ for start_time, end_time  in time_ranges:
         #Calculate linear regression on both part
         if len(left_df)>3 and len(right_df)>3:
             # if alert is confirmed, stop calculating regressions
+            score += 0.1
             if orange_condition_counter<10:
             
                 Left=linear(left_df['X'],left_df['Y'])
@@ -81,7 +85,6 @@ for start_time, end_time  in time_ranges:
          
             Td = final_df[(final_df['X'] > int(left_df['X'].min()+100)) & (final_df['X'] < int(right_df['X'].max()-100))&(final_df['Y'] > (final_df['Y'].max()-50))]
             T=Td['Variation_t'].mean()
-            print("=======================================")
             print(T)
         # Verification on regression slope and R2 and on temperature variation
         # raise alert if conditions are respected
@@ -91,42 +94,24 @@ for start_time, end_time  in time_ranges:
         
                     orange_condition_counter += 1
                     if orange_condition_counter >5 and T>0:
-                        
                         background_color = 'orange'
+                        score = 0.6
                         
                     elif orange_condition_counter > 5 :
                         background_color = 'red'
+                        score = 1
                         print(f"Alert red à {end_time.time()}")
                     else:
                             background_color = 'orange'
+                            score += round(min(orange_condition_counter/10, 0.6),2)
                             print(f"Alert orange à {end_time.time()}")
-                    
-                    # # calculation of the scores
-                    # # left[2], right[2], left[3], right[3], var_l, var_R, counter
-                    # scores = np.array([1,                                # left[2] 
-                    #                    1,                                # right[2] 
-                    #                    ( Right[3] - 0.8 ) / 0.2,         # Right R^2
-                    #                    ( Left[3] - 0.8 ) / 0.2,          # Left R^2
-                    #                    1,                                # var_left
-                    #                    1,                                # var_Right
-                    #                    orange_condition_counter / 5])    # Orange counter 
-
+                
             else:
-                # scores = np.array([0,       # left[2] 
-                #                    0,       # right[2] 
-                #                    0,       # Right R^2
-                #                    0,       # Left R^2
-                #                    0,       # var_left
-                #                    0,       # var_Right
-                #                    0])      # Orange counter  
+                
                 background_color='green'
             
-            # ggg = 1/7
-            # weights = np.array([ggg,ggg,ggg,ggg,ggg,ggg,ggg])
-            print("orange counter:",orange_condition_counter )
-            score += min ( orange_condition_counter/10 , 0.65 )
-            print(score)
-            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],round(score,2))
+            score = min(score, 1)
+            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],coefficient=round(score,2))
            
         else :
             plot(final_df,end_time,'green',coefficient = score)
