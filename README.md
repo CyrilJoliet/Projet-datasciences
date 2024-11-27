@@ -34,8 +34,10 @@ we have the following files:
 #### `main.py`
 The main.py file is used to analyze specific frames in a dataset. It processes the data by extracting relevant features for each frame and generates plots to visualize the results. This script is typically used for detailed, frame-by-frame analysis.
 
+#### [`test_all.py`](./main.py)
 #### `test_all.py`
 The test_all.py file autonomously analyzes the entire dataset. It is designed to go through the dataset step by step, running analyses on each frame and generating comprehensive results. This script can be used for batch processing and for testing the approach on large datasets without the need for manual intervention.
 
-#### `fun.py`
+#### [`fun.py`](./main.py)
+`fun.py`
 The fun.py file contains utility functions that are used by both the main.py and test_all.py files. These functions handle data processing tasks, such as linear regression, temperature analysis, and other reusable operations that support the core functionality of the project.
