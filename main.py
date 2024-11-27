@@ -33,11 +33,11 @@ for start_time, end_time  in time_ranges:
     final_df=data[0]
     Speed=data[1]
     high = final_df[final_df['Variation_t']>1]
-    score = round(min( len(high) / 100 , 0.35),2)
+    Index = round(min( len(high) / 100 , 0.35),2)
 
     # Check if there is more than 30 high value (variation>1)
     if  len(high)<30:
-        plot(final_df,end_time,"green",coefficient = round(score,2))
+        plot(final_df,end_time,"green",coefficient = round(Index,2))
 
     else: 
         #Take maximum values 
@@ -64,7 +64,7 @@ for start_time, end_time  in time_ranges:
         #Calculate linear regression on both part
         if len(left_df)>3 and len(right_df)>3:
             # if alert is confirmed, stop calculating regressions
-            score += 0.1
+            Index += 0.1
             if orange_condition_counter<10:
             
                 Left=linear(left_df['X'],left_df['Y'])
@@ -95,24 +95,24 @@ for start_time, end_time  in time_ranges:
                     orange_condition_counter += 1
                     if orange_condition_counter >5 and T>0:
                         background_color = 'orange'
-                        score = 0.6
+                        Index = 0.6
                         
                     elif orange_condition_counter > 5 :
                         background_color = 'red'
-                        score = 1
+                        Index = 1
                         print(f"Alert red à {end_time.time()}")
                     else:
                             background_color = 'orange'
-                            score += round(min(orange_condition_counter/10, 0.6),2)
+                            Index += round(min(orange_condition_counter/10, 0.6),2)
                             print(f"Alert orange à {end_time.time()}")
                 
             else:
                 
                 background_color='green'
             
-            score = min(score, 1)
-            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],coefficient=round(score,2))
+            Index = min(Index, 1)
+            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],coefficient=round(Index,2))
            
         else :
-            plot(final_df,end_time,'green',coefficient = score)
+            plot(final_df,end_time,'green',coefficient = Index)
  
