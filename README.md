@@ -41,8 +41,8 @@ The fun.py file contains utility functions that are used by both the main.py and
 
 ---
 ## Contributors
-* [Lison Van Asbrouck](https://github.com/username)
-* [Nour-El Houda Teber](https://github.com/username)
-* [Cyril Joliet](https://github.com/username)
-* [Abdelali Dssam](https://github.com/username)
+* [Lison Van Asbrouck](https://github.com/LisonVanAsbrouck)
+* [Nour-El Houda Teber](https://github.com/NOUREL-art)
+* [Cyril Joliet](https://github.com/CyrilJoliet)
+* [Abdelali Dssam](https://github.com/AliD47)
 
