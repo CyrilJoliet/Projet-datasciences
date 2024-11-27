@@ -21,6 +21,16 @@ This project models these defects by analyzing thermal data and applying statist
 
 ### Installation  
 To set up the environment for this project, the following packages must be installed:  
+* numpy
+* pandas
+* matplotlib
+* scikit-learn
+* seaborn
+
+they can be installed using the following cmd command:
 ```bash
 pip install numpy pandas matplotlib scikit-learn seaborn
+```
+
+ugwuyudw
 
