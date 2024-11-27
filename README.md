@@ -30,6 +30,7 @@ pip install numpy pandas matplotlib scikit-learn seaborn
 
 we have the following files:
 
+### [`main.py`](./main.py)
 #### `main.py`
 The main.py file is used to analyze specific frames in a dataset. It processes the data by extracting relevant features for each frame and generates plots to visualize the results. This script is typically used for detailed, frame-by-frame analysis.
 
