@@ -1,5 +1,5 @@
 # Detection of Solidification Defects During Continuous Casting in Steelmaking  
-## Modeling for the Company EBDS ENGINEERING  [EBDS ENGINEERING]([https://example.com](http://www.ebds-engineering.com/home))
+## Modeling for the Company [EBDS ENGINEERING](http://www.ebds-engineering.com/home)
 
 
 ### Project Overview  
