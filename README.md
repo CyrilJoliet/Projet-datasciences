@@ -1,26 +1,19 @@
 # Detection of Solidification Defects During Continuous Casting in Steelmaking  
 ## Modeling for the Company [EBDS ENGINEERING](https://be.linkedin.com/company/ebds-engineering)
 
-
-### Project Overview  
-This project involves the development of a detection system for identifying solidification defects (commonly referred to as "sticking events") during the continuous casting process in steelmaking. Using a combination of linear regression models and temperature sensors, the system predicts and visualizes potential sticking events in real-time, improving monitoring and operational efficiency.
-
 ### Table of Contents  
 1. [Context](#context)  
-2. [Installation](#installation)  
-3. [Usage](#usage)  
-4. [File Descriptions](#file-descriptions)  
-5. [Contributors](#contributors)  
+2. [Usage](#usage)  
+3. [File Descriptions](#file-descriptions)  
+4. [Contributors](#contributors)  
 
 ---
 
-### Context  
-Continuous casting is a crucial process in steelmaking, where molten steel solidifies as it flows through a cooled mold. However, defects like sticking or fractures near the meniscus can disrupt the process, leading to operational inefficiencies and safety hazards.  
-This project models these defects by analyzing thermal data and applying statistical methods to detect and predict such phenomena.
+### Context: Continuous Casting Defect Detection
+Continuous casting is a key process in steel production, where molten steel is poured into a cooled mold to solidify into semi-finished products. One significant challenge in this process is the occurrence of "sticking," where solidified steel adheres to the mold, leading to cracks and defects. This phenomenon can cause costly production stoppages, equipment damage, and product quality degradation. To mitigate this, advanced monitoring systems using fiber optics have been adopted by EBDS Engineering to detect subtle temperature variations in the mold that often precede sticking events. In this project, we introduce our approach of using linear regression to detect these phenomena and prevent the formation of defects during the production process.
 
----
 
-### Installation  
+### Usage  
 To set up the environment for this project, the following packages must be installed:  
 * numpy
 * pandas
