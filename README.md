@@ -1,5 +1,6 @@
 # Detection of Solidification Defects During Continuous Casting in Steelmaking  
-## Modeling for the Company EBDS ENGINEERING  
+## Modeling for the Company EBDS ENGINEERING  [EBDS ENGINEERING]([https://example.com](http://www.ebds-engineering.com/home))
+
 
 ### Project Overview  
 This project involves the development of a detection system for identifying solidification defects (commonly referred to as "sticking events") during the continuous casting process in steelmaking. Using a combination of linear regression models and temperature sensors, the system predicts and visualizes potential sticking events in real-time, improving monitoring and operational efficiency.
