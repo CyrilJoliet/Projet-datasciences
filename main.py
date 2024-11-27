@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 
 
 # Importing the DATA
-df = pd.read_csv(f'C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/Industeel - Sequence STR1-S-2024-02-12-22H23.csv', sep=';')
+df = pd.read_csv('Industeel-S2024-02-12.csv', sep=';')
 
 # Transform the date in datetime format
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
