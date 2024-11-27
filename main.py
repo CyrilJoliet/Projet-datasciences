@@ -1,4 +1,4 @@
-
+# importing the packages
 import pandas as pd
 import numpy as np
 from datetime import timedelta
@@ -7,9 +7,8 @@ from fun import process_data,plot,linear,temp
 warnings.filterwarnings("ignore")
 
 
-# Import DATA
-file_name = 'Industeel - Sequence STR1-S-2024-02-12-22H23.csv'
-df = pd.read_csv(f'C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/{file_name}', sep=';')
+# Importing the DATA
+df = pd.read_csv(f'C:/Users/abdel/Desktop/Git/Project_EBDS/new/new/Industeel - Sequence STR1-S-2024-02-12-22H23.csv', sep=';')
 
 # Transform the date in datetime format
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S')
@@ -17,9 +16,13 @@ df['TIME'] = [(df['DATETIME'][0]+ timedelta(seconds=i)) for i in range(len(df))]
 
 
 #  Generate 60 sec timeframes from start_time incremented by 1sec 
+
+starting_time = "02-12-24 23:15:00"         # this is the starting time
+Num_frames = 15                             # this is number of frames to analyze
+
 time_ranges = []
-start_time = pd.to_datetime("02-12-24 23:15:00")
-for i in range(100):  
+start_time = pd.to_datetime(starting_time)   
+for i in range(Num_frames):                               
     start_time_str = (start_time + timedelta(seconds=i))
     end_time_str = (start_time + timedelta(seconds=i + 60))
     time_ranges.append((start_time_str, end_time_str))
@@ -29,13 +32,13 @@ orange_condition_counter = 0
 
 # Loop on the time frames
 for start_time, end_time  in time_ranges: 
-    data = process_data(df,start_time, end_time, captors='A',n_capt= 42)  # A or D   n_capt == 42 or 45
+    data = process_data(df,start_time, end_time, captors='A',n_capt= 42)    # captors == A or D  |  n_capt == 42 or 45
     final_df=data[0]
     Speed=data[1]
-    high = final_df[final_df['Variation_t']>1]
+    high = final_df[final_df['Variation_t'] > 1 ]
     Index = round(min( len(high) / 100 , 0.35),2)
 
-    # Check if there is more than 30 high value (variation>1)
+    # Check if there is more than 30 high value (variation_t that exceed 1)
     if  len(high)<30:
         plot(final_df,end_time,"green",coefficient = round(Index,2))
 
@@ -60,11 +63,11 @@ for start_time, end_time  in time_ranges:
         left_df = filtered_df[filtered_df['X'] <= min_Y_point['X']]
         right_df = filtered_df[filtered_df['X'] >= min_Y_point['X']]
         
-        #Check if more than 3 value in both part
+        #Check if more than 3 value left and right of the base of V
         #Calculate linear regression on both part
         if len(left_df)>3 and len(right_df)>3:
-            # if alert is confirmed, stop calculating regressions
             Index += 0.1
+            # if alert is confirmed, stop calculating regressions
             if orange_condition_counter<10:
             
                 Left=linear(left_df['X'],left_df['Y'])
@@ -73,22 +76,20 @@ for start_time, end_time  in time_ranges:
                 Left = (Left[0], Left[1] - Speed, Left[2], Left[3])
                 Right=(Right[0],Right[1]-Speed,Right[2],Right[3])
         
+            # getting the X of the sensors
             L=list(left_df['X'])
-           
             R=list(right_df['X'])
             
             #Check if temperature is decreasing or increasing
-            
             variation_L= temp(L, final_df)
-            
             variation_R= temp(R,final_df)
          
             Td = final_df[(final_df['X'] > int(left_df['X'].min()+100)) & (final_df['X'] < int(right_df['X'].max()-100))&(final_df['Y'] > (final_df['Y'].max()-50))]
             T=Td['Variation_t'].mean()
-            print(T)
+
         # Verification on regression slope and R2 and on temperature variation
         # raise alert if conditions are respected
-        # change color and add regressions on the visualisation
+        # change color, calculate the index and add the regression lines on the visualisation
 
             if  -15 <= (Left[2] <= 0 or 0 <= Right[2]<= 15) and (Left[3]>0.8 or Right[3]>0.8) and (0>variation_L or 0>variation_R):
         

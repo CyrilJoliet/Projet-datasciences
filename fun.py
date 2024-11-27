@@ -1,14 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov 18 17:36:08 2024
-
-@author: cyril
-"""
+# import the packages needed
 import numpy as np
 import pandas as pd
 import math
-import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from sklearn.linear_model import LinearRegression
 
 
@@ -16,7 +11,7 @@ from sklearn.linear_model import LinearRegression
 # df = data 
 # start_time , end_time of the time frame
 # captors = name of the captor (A,B,C,D,..)
-#n_captors= number of captors by face (industeel=42)
+# n_captors= number of captors by face (industeel=42)
 
 # process the data
 def process_data(df,start_time, end_time, captors,n_capt):
@@ -71,17 +66,16 @@ def process_data(df,start_time, end_time, captors,n_capt):
 
     return final_df,Speed
 
-#Visualisation of temperature variations
-def plot(df, end_time, background_color, X_left=[], y_left_pred=[], X_right=[], y_right_pred=[], r2l=0, r2r=0, coefficient = 0):
-    import matplotlib.colors as mcolors
-    from matplotlib.patches import Rectangle
+# Visualisation of temperature variations
+def plot(df, end_time, background_color, X_left=[], y_left_pred=[], X_right=[], y_right_pred=[], r2l=0, r2r=0, Index = 0):
+
     norm = mcolors.TwoSlopeNorm(vmin=-1.0, vmax=2, vcenter=0)
     cmap = plt.get_cmap('coolwarm')
 
-    fig, ax = plt.subplots(figsize=(10, 6))  # Main plot
-    scatter = plt.scatter(df['X'], df['Y'], c=df['Variation_t'], s=25, cmap=cmap, norm=norm)
+    fig, ax = plt.subplots(figsize=(10, 6))                                                   # Creating the figure
+    scatter = plt.scatter(df['X'], df['Y'], c=df['Variation_t'], s=25, cmap=cmap, norm=norm)  # Making the main plot
 
-    # Plot regression lines if data is provided
+    # Plot the regression lines if data is provided
     if len(X_left) > 0 and len(y_left_pred) > 0 and len(X_right) > 0 and len(y_right_pred) > 0:
         ax.plot(X_left, y_left_pred, color='black')
         ax.plot(X_right, y_right_pred, color='black')
@@ -99,32 +93,31 @@ def plot(df, end_time, background_color, X_left=[], y_left_pred=[], X_right=[], 
     cbar = plt.colorbar(scatter)
     cbar.set_label('Δ')
 
-    # score part
-    # Add the rectangle bar at the top with red-yellow-green gradient
-    gradient_ax = fig.add_axes([0.13, 0.92, 0.6, 0.02])  # Position: [left, bottom, width, height]
-    gradient = np.linspace(0, 1, 256).reshape(1, -1)  # Create gradient values
+    # Displaying the index
+    gradient_ax = fig.add_axes([0.13, 0.92, 0.6, 0.02])  
+    gradient = np.linspace(0, 1, 256).reshape(1, -1)  # Creating gradient values (between 0 and 1)
     gradient_ax.imshow(
-        gradient, aspect='auto', cmap=plt.get_cmap('RdYlGn').reversed(), origin='lower'  # Use 'RdYlGn' colormap for red-yellow-green
+        gradient, aspect='auto', cmap=plt.get_cmap('RdYlGn').reversed(), origin='lower' 
     )
     gradient_ax.set_xticks([])
     gradient_ax.set_yticks([])
 
-    # Add description text on top of the rectangle bar
+    # Add the value of the index
     gradient_ax.text(
         0.5, 1.05, "Detection Certainty Index (DCI)" , color='black', fontsize=12, ha='center', va='bottom', transform=gradient_ax.transAxes
     )
     # Add vertical line to indicate the coefficient value
-    coeff_position = coefficient * 255  # Scale coefficient (0-1) to gradient (0-255)
+    coeff_position = Index * 255  # Scale coefficient (0-1) to gradient (0-255)
     gradient_ax.axvline(x=coeff_position, color='black', linewidth=2, linestyle='--')  # Draw the line
     gradient_ax.text(
-        coeff_position, -1.2, f'{coefficient}', color='black', fontsize=10, ha='center', va='center', transform=gradient_ax.transData,
+        coeff_position, -1.2, f'{Index}', color='black', fontsize=10, ha='center', va='center', transform=gradient_ax.transData,
         bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.8)
     )
     title_position = 1.25
-    plt.title(f'{end_time}', loc='center', x=title_position, y=1.05) 
+    plt.title(f'{end_time}', loc='center', x=title_position, y=1.05)                # display the date and time of the frame
     plt.show()
 
-#Linear regressions    
+# Linear regressions    
 def linear(x,y):
     X = x.values.reshape(-1, 1)
     Y = y.values
@@ -135,34 +128,13 @@ def linear(x,y):
     r2 = model.score(X, Y)
     return X,y_pred, slope, r2
 
-#Calculate mean variations after the V
+# Calculate mean temperature variations after the V
 def temp(L,df):
     variations_after_peak = []
     for i,x in enumerate(L):
-        dfx=df[df['X']==x]
-        pic=dfx.loc[dfx['Variation_t'].idxmax()]
+        dfx=df[df['X']==x]                         
+        pic=dfx.loc[dfx['Variation_t'].idxmax()]    
         df_after = dfx[dfx['Y'] > pic['Y']+100]
         variations_after_peak.extend(df_after['Variation_t'].dropna())
     vap= np.mean(variations_after_peak)
     return vap
-    
-    
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
