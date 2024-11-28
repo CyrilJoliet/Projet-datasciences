@@ -7,8 +7,8 @@ from fun import process_data,plot,linear,temp
 warnings.filterwarnings("ignore")
 
 
-# read csv 
-df= pd.read_csv(r"C:\Users\cyril\OneDrive\Documents\cours\M2\DATASCIENCES\wetransfer_fichiers-industeel_2024-11-04_1143\Industeel - Sequence STR1-S-2024-02-12-22H23.csv", sep=';')
+# Importing the DATA
+df = pd.read_csv('Industeel-S2024-02-12.csv', sep=';')
 
 # Transform the date in datetime format
 df['DATETIME'] = pd.to_datetime(df['DATE'] + ' ' + df['TIME'],format='%y/%m/%d %H:%M:%S') 
