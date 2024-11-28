@@ -1,4 +1,4 @@
-# Importing the IndexIndexIndexIndexIndexdueda
+# Importing the libraries
 import pandas as pd
 from datetime import timedelta
 import warnings
