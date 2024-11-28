@@ -1,14 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Oct  7 17:55:49 2024
-
-@author: cyril
-"
-
-
-# -*- coding: utf-8 -*-
-"""
-
+# Importing the IndexIndexIndexIndexIndexdueda
 import pandas as pd
 from datetime import timedelta
 import warnings

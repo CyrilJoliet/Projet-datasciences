@@ -17,8 +17,8 @@ df['TIME'] = [(df['DATETIME'][0]+ timedelta(seconds=i)) for i in range(len(df))]
 
 #  Generate 60 sec timeframes from start_time incremented by 1sec 
 
-starting_time = "02-12-24 23:15:00"         # this is the starting time
-Num_frames = 15                             # this is number of frames to analyze
+starting_time = "02-12-24 23:15:10"         # this is the starting time
+Num_frames = 150                             # this is number of frames to analyze
 
 time_ranges = []
 start_time = pd.to_datetime(starting_time)   
@@ -40,7 +40,7 @@ for start_time, end_time  in time_ranges:
 
     # Check if there is more than 30 high value (variation_t that exceed 1)
     if  len(high)<30:
-        plot(final_df,end_time,"green",coefficient = round(Index,2))
+        plot(final_df,end_time,"green",Index = round(Index,2))
 
     else: 
         #Take maximum values 
@@ -112,8 +112,8 @@ for start_time, end_time  in time_ranges:
                 background_color='green'
             
             Index = min(Index, 1)
-            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],coefficient=round(Index,2))
+            plot(final_df,end_time,background_color,Left[0],Left[1],Right[0],Right[1],Left[3],Right[3],Index=round(Index,2))
            
         else :
-            plot(final_df,end_time,'green',coefficient = Index)
+            plot(final_df,end_time,'green',Index = Index)
  
