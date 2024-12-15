@@ -73,8 +73,8 @@ for start_time, end_time  in time_ranges:
                 Left=linear(left_df['X'],left_df['Y'])
                 Right=linear(right_df['X'],right_df['Y'])
             else: 
-                Left = (Left[0], Left[1] - Speed, Left[2], Left[3])
-                Right=(Right[0],Right[1]-Speed,Right[2],Right[3])
+                Left = (Left[0], np.maximum(0, Left[1] - Speed), Left[2], Left[3])
+                Right = (Right[0], np.maximum(0, Right[1] - Speed), Right[2], Right[3])
         
             # getting the X of the sensors
             L=list(left_df['X'])
