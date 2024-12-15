@@ -31,7 +31,7 @@ def process_data(df,start_time, end_time, captors,n_capt):
     n_mesures = int((end_time-start_time).total_seconds())+1
 
     # Create grid with X Y positions
-    Speed=data['SPEED'].mean()/6
+    Speed=data['SPEED'].max()/6
     Y = np.arange(n_mesures)*Speed
     X = [i * 50 for i in range(n_capt)] + [(i * 50 + 228.5 + 50 * (n_capt-1)) for i in range(n_capt)] 
     final_df = pd.DataFrame(columns=['X', 'Y', 'Variation_t'])
