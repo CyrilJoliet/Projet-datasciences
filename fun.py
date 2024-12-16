@@ -7,12 +7,16 @@ import matplotlib.colors as mcolors
 from sklearn.linear_model import LinearRegression
 
 
-# Set the data history on X Y position where X is the positions off captors and Y is calculated with the speed and the time 
-# df = data 
-# start_time , end_time of the time frame
-# captors = name of the captor (A,B,C,D,..)
-# n_captors= number of captors by face (industeel=42)
 
+"""
+ Set the data history on X Y position where X is the positions of the captors and Y is the
+   position in the vertical axis calculated with the speed and the time 
+ df = data 
+ start_time , end_time of the time frame
+ captors = name of the captor (A,B,C,D,..)
+ n_captors= number of captors by face (industeel=42)
+
+"""
 # process the data
 def process_data(df,start_time, end_time, captors,n_capt):
         
@@ -129,6 +133,20 @@ def linear(x,y):
     return X,y_pred, slope, r2
 
 # Calculate mean temperature variations after the V
+
+"""
+ Calculate the mean temperature variation after the peak for a list of sensor positions.
+ Inputs:
+ - L: List of sensor positions (X values) for which to calculate variations.
+ - df: Dataframe containing sensor data (columns include 'X', 'Y', and 'Variation_t').
+ Process:
+ 1. For each X value in L:
+    - Identify the peak variation point (maximum Variation_t) for the sensor.
+    - Select data points with Y positions more than 100 units above the peak (so for after the peak).
+    - Collect Variation_t values from this subset.
+ 2. Compute and return the mean of the collected Variation_t values.
+
+ """
 def temp(L,df):
     variations_after_peak = []
     for i,x in enumerate(L):
